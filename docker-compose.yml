@@ -1,19 +1,30 @@
 version: '3'
 
 services:
-  express:
-    image: node:lts-slim
-    ports:
-      - 8000:8000
-      - 9229:9229
-    environment:
-      - NODE_ENV=dev
+  # express:
+  #   image: node:lts-slim
+  #   ports:
+  #     - 8000:8000
+  #     - 9229:9229
+  #   environment:
+  #     - NODE_ENV=dev
+  #   volumes:
+  #   - ./backend:/usr/src/app
+  #   working_dir: /usr/src/app
+  #   command: npm run dev
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./backend
+  #         target: /usr/src/app
+  db:
+    image: mysql:lts
+    ports: 
+      - 3306:3306
+    env_file:
+      - ./backend/.env
     volumes:
-    - ./backend:/usr/src/app
-    working_dir: /usr/src/app
-    command: npm run dev
-    develop:
-      watch:
-        - action: sync
-          path: ./backend
-          target: /usr/src/app
+      - nodejs-db:/var/lib/mysql
+
+volumes:
+  nodejs-db:
