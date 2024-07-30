@@ -10,9 +10,7 @@ let posts = [
 // Get all posts
 const getPosts = (req,res) => {
     console.log('Query', req.query);
-    console.log(req['express-validator#contexts']);
     const result = validationResult(req);
-    console.log(result);
     const { query: {filter, value} } = req;
     if (filter && value) {
         res.status(200);

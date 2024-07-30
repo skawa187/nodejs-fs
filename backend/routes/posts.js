@@ -5,7 +5,7 @@ import { createPostValidation } from '../utils/validationSchema.js';
 
 const router = express.Router();
 
-router.get('/', query('filter').isString().notEmpty(), getPosts);
+router.get('/', getPosts);
 
 router.get('/:id', getPost);
 
