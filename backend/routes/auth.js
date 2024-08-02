@@ -1,5 +1,5 @@
 import express from 'express';
-import passport from '../strategies/local-strategy.js';
+import passport from '../strategies/localStrategy.js';
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/status', (req, res) => {
-    console.log(req.user);
+    // console.log(req.user);
     return req.user ? res.send(req.user) : res.status(401).json({msg: 'Unauthorized user'});
 });
 

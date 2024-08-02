@@ -1,4 +1,6 @@
 import { Sequelize } from "sequelize";
+import Post from './models/postModel.js';
+import User from './models/userModel.js';
 
 const database = process.env.MYSQL_DATABASE
 const username = process.env.MYSQL_USER
@@ -10,12 +12,18 @@ const sequelize = new Sequelize(database, username, passwd, {
     host: db_host,
     port: db_port,
     dialect: 'mysql',
-})
+});
+// Initialize db models
+const models = [User, Post];
+models.forEach(model => {
+    model.initModel(sequelize);
+});
 
 const syncDb = async () => {
     try {
         await sequelize.sync();
-        console.log('DB synced.')
+        console.log('MODELS: ', sequelize.models);
+        console.log('DB synced.');
     } catch (error) {
         console.error(`DB sync error: `, error);
     }
@@ -31,5 +39,5 @@ const connectDb = async () => {
     }
 }
 
-export default connectDb;
-export {sequelize, syncDb};
+export default sequelize;
+export { connectDb, syncDb };

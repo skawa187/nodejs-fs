@@ -1,5 +1,4 @@
 import { validationResult, matchedData } from 'express-validator';
-import Post from '../models/postModel.js';
 
 let posts = [
     { id: 1, title: 'Post 1'},
