@@ -18,6 +18,10 @@ const models = [User, Post];
 models.forEach(model => {
     model.initModel(sequelize);
 });
+// Associations
+const { User: user, Post: post } = sequelize.models;
+user.hasMany(post, {foreignKey: 'userId'});
+post.belongsTo(user, {foreignKey: 'userId'});
 
 const syncDb = async () => {
     try {

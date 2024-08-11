@@ -1,82 +1,88 @@
+import Post from '../models/postModel.js';
 import { validationResult, matchedData } from 'express-validator';
 
-let posts = [
-    { id: 1, title: 'Post 1'},
-    { id: 2, title: 'Post 2'},
-    { id: 3, title: 'Post 3'},
-]
-
-// Get all posts
-const getPosts = (req,res) => {
+// GET all posts
+const getPosts = async (req,res) => {
     console.log('Query', req.query);
     const result = validationResult(req);
     const { query: {filter, value} } = req;
-    if (filter && value) {
-        res.status(200);
-        return res.send(posts.filter((post) => post[filter].includes(value)));
-    }
-    return res.status(200).json(posts);
-    
-}
-
-// Get single post by :id
-const getPost = (req, res, next) => {
-    const id = parseInt(req.params.id);
-    const post = posts.find((post)=>post.id === id);
-
-    if (!post) {
-        const error = new Error(`Post ${id} not found.`);
-        error.status = 404;
-        return next(error);
-    }
-
-    return res.status(200).json(post);
+    try {
+        const { count, rows } = await Post.findAndCountAll();
+        return res.status(200).json({ rows, count });
+    } catch (err) {
+        res.status(500).json({ msg: err });
+    }    
 };
 
-// Create new post
-const createPost = (req, res) => {
+// GET single post by :id
+const getPost = async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+        const post = await Post.findByPk(id);
+        if (!post) return res.status(404).json({ msg: `Could not find the post ID: ${id}` });
+        return res.status(200).json(post);
+    } catch (err) {
+        res.status(500).json({ msg: err });
+    }
+};
+
+// CREATE new post
+const createPost = async (req, res) => {
     const result = validationResult(req);
-    console.log(result);
     if (!result.isEmpty()) 
         return res.status(400).json({ validationErrors: result.array() });
 
     const validatedData = matchedData(req);
-    const newPost = {
-        id: posts.length +1,
-        ...validatedData
+    try {
+        const newPost = Post.build(validatedData);
+        await newPost.save();
+        console.log(`Saved new post - title: ${newPost.title}`);
+        return res.status(201).json(newPost);
+    } catch (err) {
+        res.status(500).json({ msg: err });
     }
-    posts.push(newPost);
-    
-    res.status(201).json(posts);
 };
 
-// Update post
-const updatePost = (req, res, next) => {
-    const id = parseInt(req.params.id);
-    const post = posts.find((post) => post.id === id);
+// UPDATE post :id
+const updatePost = async (req, res, next) => {
+    const result = validationResult(req);
+    if (!result.isEmpty()) 
+        return res.status(400).json({ validationErrors: result.array() });
 
-    if (!post) {
-        const error = new Error(`Post ${id} not found.`);
-        error.status = 404;
-        return next(error);
+    const validatedData = matchedData(req);
+    const id = parseInt(req.params.id);
+    try {
+        const post = await Post.findByPk(id);
+        if (!post) return res.status(404).json({ msg: `No post with this ID: ${id}` });
+        await post.update(
+            validatedData, {
+                where: {
+                    id: post.id,
+                },
+            },
+        );
+        return res.status(200).json({ post });
+    } catch (err) {
+        res.status(500).json({ msg: `Update post error ${err}` });
     }
 
-    post.title = req.body.title;
-    res.status(200).json(posts);
 }
 
-// Delete post
-const deletePost = (req, res, next) => {
+// DELETE post :id
+const deletePost = async (req, res, next) => {
     const id = parseInt(req.params.id);
-    const postId = posts.findIndex((post) => post.id === id);
-    if (postId === -1) {
-        const error = new Error(`Could not find post id: ${id}`);
-        error.status = 404;
-        return next(error);
+    try {
+        const post = await Post.findByPk(id);
+        if (!post) return res.status(404).json({ msg: `No post found with ID ${id}` });
+        await post.destroy({
+            where: {
+                id: post.id,
+            },
+        });
+        return res.status(200).json({ msg: `Removed post ID ${post.id}`});
+    } catch (err) {
+        res.status(500).json({ msg: `Delete post error ${err}` });
     }
-    posts.splice(postId, 1);
-    return res.status(200).json(posts);
-
 }
 
 export {

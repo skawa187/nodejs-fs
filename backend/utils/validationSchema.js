@@ -30,6 +30,16 @@ const createUserValidation = {
     
 }
 
+const getUsersValidation = {
+    filter: {
+        optional: true,
+        isIn: {
+            options: [['username', 'id', 'age']],
+        },
+        errorMessage: 'Filter by username, id, age',
+    },
+}
+
 const createPostValidation = {
     title: {
         notEmpty: {
@@ -44,7 +54,17 @@ const createPostValidation = {
             },
             errorMessage: 'Provide a title longer than 3 characters',
         },
-    }
+    },
+    body: {
+        notEmpty: {
+            errorMessage: 'Provide a post body',
+        },
+    },
+    userId: {
+        notEmpty: {
+            errorMessage: 'Post must belong to a user',
+        },
+    },
 }
 
-export { createPostValidation, createUserValidation };
+export { createPostValidation, createUserValidation, getUsersValidation };

@@ -11,7 +11,7 @@ router.get('/:id', getPost);
 
 router.post('/', checkSchema(createPostValidation), createPost);
 
-router.put('/:id', updatePost);
+router.put('/:id', checkSchema(createPostValidation), updatePost);
 
 router.delete('/:id', deletePost);
 

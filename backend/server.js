@@ -10,16 +10,22 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import { connectDb, syncDb } from './db.js';
+import { createClient } from 'redis';
+import RedisStore from "connect-redis";
 
-const PORT = process.env.NODE_PORT || 8000;
+const PORT = process.env.NODE_PORT || 3000;
+process.env.TZ = 'Europe/Warsaw';
+// Session config
+const rs = await createClient({ url: process.env.REDIS_URL }).on('error', err => console.log('Redis Client Error', err)).connect();
 const sessionOpts =     {
+    store: new RedisStore({ client: rs }),
     secret: process.env.NODE_SESSION_SECRET,
     saveUninitialized: false,
     resave: false,
-    cookie: { maxAge: 60000 * 60, }
-}
+    cookie: { maxAge: 60000 * 360, }
+};
 
-// connectDb();
+// DB Sync
 syncDb();
 const app = express();
 
@@ -40,4 +46,5 @@ app.use('/api/users', usersRouter);
 app.use(notFound);
 app.use(errorHandler);
 
+console.log(`Time is ${ new Date().toString() }`);
 app.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
