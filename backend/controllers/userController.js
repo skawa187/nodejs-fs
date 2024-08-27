@@ -24,7 +24,20 @@ const getUsers = async (req, res) => {
         res.status(500).send(err);
     }
 
-}
+};
+
+// GET one user by :id
+const getUser = async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+        const user = await User.findByPk(id, { attributes: ['id','username', 'fullname', 'age'] });
+        if (!user) return res.status(404).json({ msg: `User id ${id} was not found` });
+        res.status(200).json(user);
+    } catch (err) {
+        console.error('Error fetching user ', err);
+        res.status(500).send(err);
+    }
+};
 
 // POST new user
 const createUser = async (req, res) => {
@@ -44,7 +57,7 @@ const createUser = async (req, res) => {
         console.error('Saving to the DB error');
         res.status(400).json({msg: 'DB error', error: err});
     }
-}
+};
 
 // DELETE a user
 const deleteUser = async (req, res) => {
@@ -61,10 +74,11 @@ const deleteUser = async (req, res) => {
         console.log('Delete user - error: ', err);
         res.status(500);
     }
-}
+};
 
 export {
     getUsers,
+    getUser,
     createUser,
     deleteUser,
 }

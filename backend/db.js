@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize";
 import Post from './models/postModel.js';
 import User from './models/userModel.js';
+import GoogleUser from "./models/googleUserModel.js";
 
 const database = process.env.MYSQL_DATABASE
 const username = process.env.MYSQL_USER
@@ -14,14 +15,16 @@ const sequelize = new Sequelize(database, username, passwd, {
     dialect: 'mysql',
 });
 // Initialize db models
-const models = [User, Post];
+const models = [User, GoogleUser, Post];
 models.forEach(model => {
     model.initModel(sequelize);
 });
 // Associations
-const { User: user, Post: post } = sequelize.models;
+const { User: user, GoogleUser: googleUser, Post: post } = sequelize.models;
 user.hasMany(post, {foreignKey: 'userId'});
 post.belongsTo(user, {foreignKey: 'userId'});
+googleUser.hasMany(post, {foreignKey: 'userId'});
+post.belongsTo(googleUser, {foreignKey: 'userId'});
 
 const syncDb = async () => {
     try {

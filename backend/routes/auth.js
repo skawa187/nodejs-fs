@@ -24,6 +24,7 @@ router.get('/status', (req, res) => {
 router.get('/google', passport.authenticate('google'));
 
 router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
+    console.log('Request session ', req.session);
     return res.sendStatus(200);
 });
 
